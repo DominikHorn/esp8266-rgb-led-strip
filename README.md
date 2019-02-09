@@ -95,6 +95,8 @@ It is often also a good idea to reset the ESP (cutoff power).
 Bare in mind that I'm not a trained professional. As far as I can tell my setup allows for max
 3A at 12V, meaning with the LED Strip I used, 3m is the maximum possible length!
 
+I roughly followed ideas from [this](https://learn.adafruit.com/rgb-led-strips/usage) tutorial/project.
+
 ## My components/setup:
 * 1x esp8266. I prefer the NodeMCU version because it's PCB comes with a USB controlling unit
   and port inbuilt. This allows for fast debugging and most importantly you may reflash easily
