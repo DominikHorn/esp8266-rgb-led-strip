@@ -23,15 +23,24 @@ struct Color {
     float g;
     float b;
 };
+
+// Constants
 struct Color PINK = { 255, 0, 127 };
 struct Color BLACK = { 0, 0, 0 };
+const char* animateLightPCName = "animate_task";
 
 // Struct used to control the pwm
 pwm_info_t pwm_info;
-
+// Task handle used to suspend and resume the animate task (doesn't need to be always running!)
+TaskHandle_t animateTH;
+// Boolean flag that can be used to gracefully stop the animate task
+bool shouldQuitAnimationTask = false;
 float led_hue = 0;
-float led_saturation = 100;
-float led_brightness = 100;
+float led_saturation = 0;
+float led_brightness = 0;
+float target_hue = 0;
+float target_saturation = 100;
+float target_brightness = 100;
 bool led_on = false;
 
 static void hsi2rgb(float h, float s, float i, struct Color* rgb) {
@@ -80,8 +89,10 @@ static void wifi_init() {
     sdk_wifi_station_connect();
 }
 
+// Hard write a color
 void write_color(struct Color rgb) {
     uint32_t r,g,b;
+    printf("writing color: (%f, %f, %f)\n", rgb.r, rgb.g, rgb.b);
 
     r = rgb.r * UINT16_MAX;
     g = rgb.g * UINT16_MAX;
@@ -94,14 +105,50 @@ void write_color(struct Color rgb) {
     multipwm_start(&pwm_info);
 }
 
-void strip_update() {
+float step(float num, float target, float stepWidth) {
+    if (num < target) {
+        if (num < target - stepWidth) return num + stepWidth;
+	return target;
+    } else if (num > target) {
+        if (num > target + stepWidth) return num - stepWidth;
+	return target;
+    } 
+
+    return target;
+}
+
+
+void animate_light_transition_task(void* pvParameters) {
     struct Color rgb;
-    if (led_on) {
-    	hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
-        write_color(rgb);
-    } else {
-	write_color(BLACK);
+
+    while (!shouldQuitAnimationTask) {
+	// Do the transition
+	while (!(target_hue == led_hue
+	    && target_saturation == led_saturation
+	    && target_brightness == led_brightness)) {
+
+	    // Update led values according to target
+	    led_hue = step(led_hue, target_hue, 3.6);
+	    led_saturation = step(led_saturation, target_saturation, 1.0);
+	    led_brightness = step(led_brightness, target_brightness, 1.0);
+
+	    // Calculate rgb colors
+	    hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
+
+	    // Write to strip
+	    write_color(rgb);
+
+	    // Only do this at most 60 times per second
+	    vTaskDelay(10 / portTICK_PERIOD_MS);	
+	}
+	
+	printf("Suspending Task\n");
+	vTaskSuspend(animateTH);
+	printf("Task resumed\n");
     }
+
+
+    vTaskDelete(NULL);
 }
 
 void led_init() {
@@ -111,25 +158,18 @@ void led_init() {
     multipwm_set_pin(&pwm_info, 0, RED_GPIO);
     multipwm_set_pin(&pwm_info, 1, GREEN_GPIO);
     multipwm_set_pin(&pwm_info, 2, BLUE_GPIO);
-
-    strip_update();
 }
 
 void led_identify_task(void *_args) {
-    for (int i=0; i<3; i++) {
-        for (int j=0; j<3; j++) {
-            //status_led_write(true);
-	    write_color(PINK);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-	    //status_led_write(false);
-	    write_color(BLACK);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-        }
-
-        vTaskDelay(250 / portTICK_PERIOD_MS);
+    for (int i=0; i<9; i++) {
+	//status_led_write(true);
+	write_color(PINK);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
+	//status_led_write(false);
+	write_color(BLACK);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
-    strip_update();
     vTaskDelete(NULL);
 }
 
@@ -147,11 +187,11 @@ void led_on_set(homekit_value_t value) {
     }
 
     led_on = value.bool_value;
-    strip_update();
+    vTaskResume(animateTH);
 }
 
 homekit_value_t led_brightness_get() {
-    return HOMEKIT_INT(led_brightness);
+    return HOMEKIT_INT(target_brightness);
 }
 
 void led_brightness_set(homekit_value_t value) {
@@ -159,12 +199,12 @@ void led_brightness_set(homekit_value_t value) {
         return;
     }
 
-    led_brightness = value.int_value;
-    strip_update();
+    target_brightness = value.int_value;
+    vTaskResume(animateTH);
 }
 
 homekit_value_t led_hue_get() {
-    return HOMEKIT_FLOAT(led_hue);
+    return HOMEKIT_FLOAT(target_hue);
 }
 
 void led_hue_set(homekit_value_t value) {
@@ -172,12 +212,12 @@ void led_hue_set(homekit_value_t value) {
         return;
     }
 
-    led_hue = value.float_value;
-    strip_update();
+    target_hue = value.float_value;
+    vTaskResume(animateTH);
 }
 
 homekit_value_t led_saturation_get() {
-    return HOMEKIT_FLOAT(led_saturation);
+    return HOMEKIT_FLOAT(target_saturation);
 }
 
 void led_saturation_set(homekit_value_t value) {
@@ -185,14 +225,14 @@ void led_saturation_set(homekit_value_t value) {
         return;
     }
 
-    led_saturation = value.float_value;
-    strip_update();
+    target_saturation = value.float_value;
+    vTaskResume(animateTH);
 }
 
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen2"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
             HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
@@ -201,7 +241,7 @@ homekit_accessory_t *accessories[] = {
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen2"),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
@@ -240,4 +280,7 @@ void user_init(void) {
     wifi_init();
     led_init();
     homekit_server_init(&config);
+    
+    // Task for animating the led transition
+    xTaskCreate(animate_light_transition_task, animateLightPCName, 1024, NULL, 1, &animateTH);
 }
