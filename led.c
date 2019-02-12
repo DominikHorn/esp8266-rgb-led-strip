@@ -83,9 +83,9 @@ static void wifi_init() {
 void write_color(struct Color rgb) {
     uint32_t r,g,b;
 
-    r = rgb.r * UINT16_MAX;
-    g = rgb.g * UINT16_MAX;
-    b = rgb.b * UINT16_MAX;
+    r = rgb.r * UINT16_MAX * 1.0;
+    g = rgb.g * UINT16_MAX * 0.85;
+    b = rgb.b * UINT16_MAX * 0.85;
 
     multipwm_stop(&pwm_info);
     multipwm_set_duty(&pwm_info, 0, r);
@@ -192,7 +192,7 @@ void led_saturation_set(homekit_value_t value) {
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Herzlicht"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
             HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
@@ -201,7 +201,7 @@ homekit_accessory_t *accessories[] = {
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Herzlicht"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
