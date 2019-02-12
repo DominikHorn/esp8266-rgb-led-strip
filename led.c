@@ -14,10 +14,6 @@
 #include "wifi.h"
 #include "config.h"
 
-//#define INBUILT_LED_ON 0
-//#define INBUILT_LED_OFF 1
-//#define INBUILT_LED_GPIO 2
-
 #define H_CUTOFF 1.047196667
 #define H_CUTOFF2 H_CUTOFF*2
 #define H_CUTOFF4 H_CUTOFF2*2
@@ -84,10 +80,6 @@ static void wifi_init() {
     sdk_wifi_station_connect();
 }
 
-//void status_led_write(bool on) {
-//    gpio_write(INBUILT_LED_GPIO, on ? INBUILT_LED_ON : INBUILT_LED_OFF);
-//}
-
 void write_color(struct Color rgb) {
     uint32_t r,g,b;
 
@@ -107,20 +99,12 @@ void strip_update() {
     if (led_on) {
     	hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
         write_color(rgb);
-	//status_led_write(true);
     } else {
 	write_color(BLACK);
-        //status_led_write(false);
     }
 }
 
 void led_init() {
-    // Initialize GPIO pins
-    // gpio_enable(INBUILT_LED_GPIO, GPIO_OUTPUT);
-    //gpio_enable(RED_GPIO, GPIO_OUTPUT);
-    //gpio_enable(GREEN_GPIO, GPIO_OUTPUT);
-    //gpio_enable(BLUE_GPIO, GPIO_OUTPUT);
-
     // Initialize pwm
     pwm_info.channels = 3;
     multipwm_init(&pwm_info);
