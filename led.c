@@ -34,7 +34,7 @@ struct Color BLACK = { 0, 0, 0 };
 pwm_info_t pwm_info;
 
 float led_hue = 0;
-float led_saturation = 50;
+float led_saturation = 100;
 float led_brightness = 100;
 bool led_on = false;
 
@@ -208,16 +208,16 @@ void led_saturation_set(homekit_value_t value) {
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "RGB Herzlicht"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herzlicht"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "LEDStrip"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "RGB Herzlicht"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herzlicht"),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
