@@ -83,9 +83,9 @@ static void wifi_init() {
 void write_color(struct Color rgb) {
     uint32_t r,g,b;
 
-    r = rgb.r * UINT16_MAX * 1.0;
-    g = rgb.g * UINT16_MAX * 0.85;
-    b = rgb.b * UINT16_MAX * 0.85;
+    r = rgb.r * UINT16_MAX;
+    g = rgb.g * UINT16_MAX;
+    b = rgb.b * UINT16_MAX;
 
     multipwm_stop(&pwm_info);
     multipwm_set_duty(&pwm_info, 0, r);
