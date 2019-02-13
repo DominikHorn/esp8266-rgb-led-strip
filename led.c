@@ -18,6 +18,10 @@
 #define H_CUTOFF2 H_CUTOFF*2
 #define H_CUTOFF4 H_CUTOFF2*2
 #define FADE_SPEED 15
+#define INITIAL_HUE 0
+#define INITIAL_SATURATION 100
+#define INITIAL_BRIGHTNESS 100
+#define INITIAL_ON true
 
 struct Color {
     float r;
@@ -39,10 +43,10 @@ bool shouldQuitAnimationTask = false;
 float led_hue = 0;
 float led_saturation = 0;
 float led_brightness = 0;
-float target_hue = 0;
-float target_saturation = 100;
-float target_brightness = 100;
-bool led_on = true;
+float target_hue = INITIAL_HUE;
+float target_saturation = INITIAL_SATURATION;
+float target_brightness = INITIAL_BRIGHTNESS;
+bool led_on = INITIAL_ON;
 
 static void hsi2rgb(float h, float s, float i, struct Color* rgb) {
     // Make sure h is between 0 and 360
@@ -218,6 +222,10 @@ void led_brightness_set(homekit_value_t value) {
     }
 
     target_brightness = value.int_value;
+    if (target_brightness > 0) {
+	// Turn LED on if value update is received
+	led_on = true;
+    }
     vTaskResume(animateTH);
 }
 
@@ -231,6 +239,8 @@ void led_hue_set(homekit_value_t value) {
     }
 
     target_hue = value.float_value;
+    // Always turn on LED on value update
+    led_on = true;
     vTaskResume(animateTH);
 }
 
@@ -244,6 +254,8 @@ void led_saturation_set(homekit_value_t value) {
     }
 
     target_saturation = value.float_value;
+    // Always turn on LED on value update
+    led_on = true;
     vTaskResume(animateTH);
 }
 
@@ -261,22 +273,22 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Bild"),
             HOMEKIT_CHARACTERISTIC(
-                ON, true,
+                ON, INITIAL_ON,
                 .getter=led_on_get,
                 .setter=led_on_set
             ),
 	    HOMEKIT_CHARACTERISTIC(
-                BRIGHTNESS, 100,
+                BRIGHTNESS, INITIAL_BRIGHTNESS,
 		.getter=led_brightness_get,
 		.setter=led_brightness_set
             ),
 	    HOMEKIT_CHARACTERISTIC(
-                HUE, 0,
+                HUE, INITIAL_HUE,
 		.getter=led_hue_get,
 		.setter=led_hue_set
             ),
 	    HOMEKIT_CHARACTERISTIC(
-                SATURATION, 0,
+                SATURATION, INITIAL_SATURATION,
 		.getter=led_saturation_get,
 		.setter=led_saturation_set
 	    ),
