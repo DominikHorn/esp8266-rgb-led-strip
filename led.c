@@ -17,6 +17,7 @@
 #define H_CUTOFF 1.047196667
 #define H_CUTOFF2 H_CUTOFF*2
 #define H_CUTOFF4 H_CUTOFF2*2
+#define FADE_SPEED 15
 
 struct Color {
     float r;
@@ -134,17 +135,22 @@ float step(float num, float target, float stepWidth) {
 
 void animate_light_transition_task(void* pvParameters) {
     struct Color rgb;
+    float t_b;
 
     while (!shouldQuitAnimationTask) {
+	// Compute brightness target value
+	if (led_on) t_b = target_brightness;
+	else t_b = 0;
+
 	// Do the transition
 	while (!(target_hue == led_hue
-	    && target_saturation == led_saturation
-	    && target_brightness == led_brightness)) {
+	    	&& target_saturation == led_saturation
+	   	&& t_b == led_brightness)) {
 
 	    // Update led values according to target
-	    led_hue = step(led_hue, led_on ? target_hue : 0, 3.6);
-	    led_saturation = step(led_saturation, led_on ? target_saturation : 0, 1.0);
-	    led_brightness = step(led_brightness, led_on ? target_brightness: 0, 1.0);
+	    led_hue = step_rot(led_hue, target_hue, 360, 3.6);
+	    led_saturation = step(led_saturation, target_saturation, 1.0);
+	    led_brightness = step(led_brightness, t_b, 1.0);
 
 	    // Calculate rgb colors
 	    hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
@@ -153,7 +159,7 @@ void animate_light_transition_task(void* pvParameters) {
 	    write_color(rgb);
 
 	    // Only do this at most 60 times per second
-	    vTaskDelay(16 / portTICK_PERIOD_MS);	
+	    vTaskDelay(FADE_SPEED / portTICK_PERIOD_MS);	
 	}
 	
 	vTaskSuspend(animateTH);
@@ -244,7 +250,7 @@ void led_saturation_set(homekit_value_t value) {
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen2"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bild"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
             HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
             HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
@@ -253,7 +259,7 @@ homekit_accessory_t *accessories[] = {
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen2"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Bild"),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
