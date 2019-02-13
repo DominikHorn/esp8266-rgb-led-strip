@@ -41,7 +41,7 @@ float led_brightness = 0;
 float target_hue = 0;
 float target_saturation = 100;
 float target_brightness = 100;
-bool led_on = false;
+bool led_on = true;
 
 static void hsi2rgb(float h, float s, float i, struct Color* rgb) {
     // Make sure h is between 0 and 360
@@ -92,8 +92,6 @@ static void wifi_init() {
 // Hard write a color
 void write_color(struct Color rgb) {
     uint32_t r,g,b;
-    printf("writing color: (%f, %f, %f)\n", rgb.r, rgb.g, rgb.b);
-
     r = rgb.r * UINT16_MAX;
     g = rgb.g * UINT16_MAX;
     b = rgb.b * UINT16_MAX;
@@ -103,6 +101,23 @@ void write_color(struct Color rgb) {
     multipwm_set_duty(&pwm_info, 1, g);
     multipwm_set_duty(&pwm_info, 2, b);
     multipwm_start(&pwm_info);
+}
+
+float step_rot(float num, float target, float max, float stepWidth) {
+    float distPlus = num < target ? target - num : (max - num + target);
+    float distMin = num > target ? num - target : (num + max - target);
+    if (distPlus < distMin) {
+        if (distPlus > stepWidth) {
+            float res = num + stepWidth;
+            return res > max ? res - max : res;
+        }
+    } else {
+        if (distMin > stepWidth) {
+	    float res = num - stepWidth;
+            return res < 0 ? res + max : res;
+        }
+    }
+    return target;
 }
 
 float step(float num, float target, float stepWidth) {
@@ -117,7 +132,6 @@ float step(float num, float target, float stepWidth) {
     return target;
 }
 
-
 void animate_light_transition_task(void* pvParameters) {
     struct Color rgb;
 
@@ -128,9 +142,9 @@ void animate_light_transition_task(void* pvParameters) {
 	    && target_brightness == led_brightness)) {
 
 	    // Update led values according to target
-	    led_hue = step(led_hue, target_hue, 3.6);
-	    led_saturation = step(led_saturation, target_saturation, 1.0);
-	    led_brightness = step(led_brightness, target_brightness, 1.0);
+	    led_hue = step(led_hue, led_on ? target_hue : 0, 3.6);
+	    led_saturation = step(led_saturation, led_on ? target_saturation : 0, 1.0);
+	    led_brightness = step(led_brightness, led_on ? target_brightness: 0, 1.0);
 
 	    // Calculate rgb colors
 	    hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
@@ -139,12 +153,10 @@ void animate_light_transition_task(void* pvParameters) {
 	    write_color(rgb);
 
 	    // Only do this at most 60 times per second
-	    vTaskDelay(10 / portTICK_PERIOD_MS);	
+	    vTaskDelay(16 / portTICK_PERIOD_MS);	
 	}
 	
-	printf("Suspending Task\n");
 	vTaskSuspend(animateTH);
-	printf("Task resumed\n");
     }
 
 
