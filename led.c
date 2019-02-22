@@ -262,16 +262,16 @@ void led_saturation_set(homekit_value_t value) {
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bild"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herzrahmen"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
-            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "17102015JBDH"),
             HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bild"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herzrahmen"),
             HOMEKIT_CHARACTERISTIC(
                 ON, INITIAL_ON,
                 .getter=led_on_get,
