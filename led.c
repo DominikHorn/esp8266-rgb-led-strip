@@ -32,7 +32,7 @@ pwm_info_t pwm_info;
 float led_hue = 0;
 float led_saturation = 100;
 float led_brightness = 100;
-bool led_on = false;
+bool led_on = true;
 
 static void hsi2rgb(float h, float s, float i, struct Color* rgb) {
     // Make sure h is between 0 and 360
@@ -116,17 +116,11 @@ void led_init() {
 }
 
 void led_identify_task(void *_args) {
-    for (int i=0; i<3; i++) {
-        for (int j=0; j<3; j++) {
-            //status_led_write(true);
-	    write_color(PINK);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-	    //status_led_write(false);
-	    write_color(BLACK);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-        }
-
-        vTaskDelay(250 / portTICK_PERIOD_MS);
+    for (int i=0; i<5; i++) {
+	write_color(PINK);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
+	write_color(BLACK);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     strip_update();
@@ -192,25 +186,20 @@ void led_saturation_set(homekit_value_t value) {
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herz"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
-            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "1004EBABF19D"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "Lichtstreifen"),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "17102015JBDH"),
+            HOMEKIT_CHARACTERISTIC(MODEL, "Bilderrahmen"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Bilderrahmen"),
+            HOMEKIT_CHARACTERISTIC(NAME, "Herz"),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
                 .setter=led_on_set
-            ),
-	    HOMEKIT_CHARACTERISTIC(
-                BRIGHTNESS, 100,
-		.getter=led_brightness_get,
-		.setter=led_brightness_set
             ),
 	    HOMEKIT_CHARACTERISTIC(
                 HUE, 0,
@@ -218,10 +207,15 @@ homekit_accessory_t *accessories[] = {
 		.setter=led_hue_set
             ),
 	    HOMEKIT_CHARACTERISTIC(
-                SATURATION, 0,
+                SATURATION, 100,
 		.getter=led_saturation_get,
 		.setter=led_saturation_set
 	    ),
+	    HOMEKIT_CHARACTERISTIC(
+                BRIGHTNESS, 100,
+		.getter=led_brightness_get,
+		.setter=led_brightness_set
+            ),
             NULL
         }),
         NULL
