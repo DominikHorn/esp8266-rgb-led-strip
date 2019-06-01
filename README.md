@@ -99,7 +99,7 @@ I roughly followed ideas from [this](https://learn.adafruit.com/rgb-led-strips/u
 
 ## My components/setup:
 * 1x esp8266. I prefer the NodeMCU version because it's PCB comes with a USB controlling unit
-  and port inbuilt. This allows for fast debugging and most importantly you may reflash easily
+  and port built in. This allows for fast debugging and most importantly you may reflash easily
   even after soldering. Alternatively you can use a standard ESP8266 with a programmer unit,
   and solder only a mount to your custom pcb.
 * 1x RGB LED Strip
