@@ -3,9 +3,9 @@ PROGRAM = led
 EXTRA_COMPONENTS = \
 	extras/http-parser \
 	extras/multipwm \
-	$(abspath ../../components/wolfssl) \
-	$(abspath ../../components/cJSON) \
-	$(abspath ../../components/homekit)
+	$(abspath ../../components/esp-8266/cJSON) \
+	$(abspath ../../components/common/wolfssl) \
+	$(abspath ../../components/common/homekit)
 
 FLASH_SIZE ?= 32
 
