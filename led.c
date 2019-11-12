@@ -32,7 +32,7 @@ pwm_info_t pwm_info;
 float led_hue = 0;
 float led_saturation = 100;
 float led_brightness = 100;
-bool led_on = true;
+bool led_on = false;
 
 static void hsi2rgb(float h, float s, float i, struct Color* rgb) {
     // Make sure h is between 0 and 360
