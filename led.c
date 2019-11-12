@@ -190,7 +190,7 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, "Herz"),
             HOMEKIT_CHARACTERISTIC(MANUFACTURER, "Dominik"),
-            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "17102015JBDH"),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, SERIAL_NUMBER_STRING),
             HOMEKIT_CHARACTERISTIC(MODEL, "Bilderrahmen"),
             HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
