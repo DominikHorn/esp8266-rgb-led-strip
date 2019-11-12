@@ -167,6 +167,7 @@ void led_hue_set(homekit_value_t value) {
     }
 
     led_hue = value.float_value;
+    led_on = true;
     strip_update();
 }
 
@@ -180,6 +181,7 @@ void led_saturation_set(homekit_value_t value) {
     }
 
     led_saturation = value.float_value;
+    led_on = true;
     strip_update();
 }
 
