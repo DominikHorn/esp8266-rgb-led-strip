@@ -92,8 +92,7 @@ Try to monitor the ESP8266 while it's executing the software:
 It is often also a good idea to reset the ESP (cutoff power).
 
 # Circuitry
-Bare in mind that I'm not a trained professional. As far as I can tell my setup allows for max
-3A at 12V, meaning with the LED Strip I used, 3m is the maximum possible length!
+Bare in mind that I have not studied electronics engineering an am merely a software engineer with hobby interests in the subject. As far as I can tell my setup allows for max 3A at 12V, meaning with the LED Strip I used, 3m is the maximum possible length!
 
 I roughly followed ideas from [this](https://learn.adafruit.com/rgb-led-strips/usage) tutorial/project.
 
