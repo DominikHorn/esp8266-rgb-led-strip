@@ -95,13 +95,13 @@ void write_color(struct Color rgb) {
 }
 
 void strip_update() {
-    struct Color rgb;
+    struct Color rgb = BLACK;
     if (led_on) {
-    	hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
-        write_color(rgb);
-    } else {
-	write_color(BLACK);
+        if (led_brightness == 0) led_brightness = 100;
+	hsi2rgb(led_hue, led_saturation, led_brightness, &rgb);
     }
+    
+    write_color(rgb);
 }
 
 void led_init() {
