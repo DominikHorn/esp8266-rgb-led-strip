@@ -9,13 +9,13 @@ here: https://github.com/maximkulkin/esp-homekit to directly connect with homeki
 controller devices.
 
 # Installation
-1. Install [esp-open-sdk](https://github.com/pfalcon/esp-open-sdk), build it with `make toolchain esptool libhal STANDALONE=n`, then edit your PATH and add the generated toolchain bin directory. The path will be something like /path/to/esp-open-sdk/xtensa-lx106-elf/bin.
+1. Install [esp-open-sdk](https://github.com/pfalcon/esp-open-sdk), build it with `make toolchain esptool libhal STANDALONE=n`, then edit your PATH and add the generated toolchain bin directory. The path will be something like /path/to/esp-open-sdk/xtensa-lx106-elf/bin. (I used commit c70543e57fb18e5be0315aa217bca27d0e26d23d)
 2. Install [esptool.py](https://github.com/themadinventor/esptool) and make it available on your PATH. If you used esp-open-sdk then this is done already.
-3. Checkout [esp-open-rtos](https://github.com/SuperHouse/esp-open-rtos) and set SDK_PATH environment variable pointing to it.
+3. Checkout [esp-open-rtos](https://github.com/SuperHouse/esp-open-rtos) and set SDK_PATH environment variable pointing to it. (I used commit bbc22571ec9584d5e8e90a46a39e91ef5f2c4bbd)
 4. Clone [esp-homekit-demo](https://github.com/maximkulkin/esp-homekit-demo) (for archive purposes forked [here](https://github.com/DominikHorn/esp-homekit-demo))
    and initialize all submodules (recursively):
 ```shell
-git clone https://github.com/maximkulkin/esp-homekit-demo
+git clone https://github.com/maximkulkin/esp-homekit-demo (I used commit e08781da4b90b30737251fd8e18bfba193337a65)
 cd esp-homekit-demo
 git submodule update --init --recursive
 ```
